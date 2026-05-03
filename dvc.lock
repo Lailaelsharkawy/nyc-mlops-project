@@ -56,3 +56,23 @@ stages:
       hash: md5
       md5: 639c413765a0aaeea4a0b633c56822d4
       size: 59782931
+  featurize:
+    cmd: py src/data/featurize.py
+    deps:
+    - path: data/splits/X_test.csv
+      hash: md5
+      md5: 36c8477d05bebebf4ade611800517221
+      size: 215727597
+    - path: data/splits/X_train.csv
+      hash: md5
+      md5: 5d6a9e3c6af113dbdc8b894878f50993
+      size: 862898538
+    - path: src/data/featurize.py
+      hash: md5
+      md5: 760c9f7a0f7755c97412e906c98ed952
+      size: 206
+    outs:
+    - path: data/processed/features_done.txt
+      hash: md5
+      md5: 00883e81294fd6eb5549bfafd90f492a
+      size: 30
