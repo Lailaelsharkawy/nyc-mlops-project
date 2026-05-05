@@ -1,0 +1,78 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: py src/data/prepare.py
+    deps:
+    - path: configs/params.yaml
+      hash: md5
+      md5: a5e2f1757e64f3098b9399a6375fdd3d
+      size: 404
+    - path: data/raw/yellow_tripdata_2015-01.csv
+      hash: md5
+      md5: 8cd78ae7d1f399839559e91f2237f955
+      size: 1985964692
+    - path: src/data/prepare.py
+      hash: md5
+      md5: 0d47a01bce9e46d3ab753a3ef1bacf12
+      size: 461
+    outs:
+    - path: data/processed/cleaned.csv
+      hash: md5
+      md5: a58a02fc03fadbc9c4dc38acfe2f623e
+      size: 371302554
+  preprocess:
+    cmd: py src/data/preprocess.py
+    deps:
+    - path: configs/params.yaml
+      hash: md5
+      md5: a5e2f1757e64f3098b9399a6375fdd3d
+      size: 404
+    - path: data/processed/cleaned.csv
+      hash: md5
+      md5: a58a02fc03fadbc9c4dc38acfe2f623e
+      size: 371302554
+    - path: src/data/preprocess.py
+      hash: md5
+      md5: f88bf2d7b03ad0999fbf9dc0c83f92b2
+      size: 1799
+    outs:
+    - path: data/processed/preprocessor.pkl
+      hash: md5
+      md5: 35843982a3049ee33448827294dfd6ae
+      size: 4002
+    - path: data/splits/X_test.csv
+      hash: md5
+      md5: 36c8477d05bebebf4ade611800517221
+      size: 215727597
+    - path: data/splits/X_train.csv
+      hash: md5
+      md5: 5d6a9e3c6af113dbdc8b894878f50993
+      size: 862898538
+    - path: data/splits/y_test.csv
+      hash: md5
+      md5: 7e233c4bf1f099d5ea5032d86b829cb4
+      size: 14943687
+    - path: data/splits/y_train.csv
+      hash: md5
+      md5: 639c413765a0aaeea4a0b633c56822d4
+      size: 59782931
+  featurize:
+    cmd: py src/data/featurize.py
+    deps:
+    - path: data/splits/X_test.csv
+      hash: md5
+      md5: 36c8477d05bebebf4ade611800517221
+      size: 215727597
+    - path: data/splits/X_train.csv
+      hash: md5
+      md5: 5d6a9e3c6af113dbdc8b894878f50993
+      size: 862898538
+    - path: src/data/featurize.py
+      hash: md5
+      md5: 760c9f7a0f7755c97412e906c98ed952
+      size: 206
+    outs:
+    - path: data/processed/features_done.txt
+      hash: md5
+      md5: 00883e81294fd6eb5549bfafd90f492a
+      size: 30

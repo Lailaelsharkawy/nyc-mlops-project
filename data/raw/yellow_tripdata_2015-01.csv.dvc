@@ -1,0 +1,5 @@
+outs:
+- md5: 8cd78ae7d1f399839559e91f2237f955
+  size: 1985964692
+  hash: md5
+  path: yellow_tripdata_2015-01.csv

@@ -1,0 +1,31 @@
+stages:
+  prepare:
+    cmd: python src/data/prepare.py
+    deps:
+      - src/data/prepare.py
+      - data/raw/yellow_tripdata_2015-01.csv
+      - configs/params.yaml
+    outs:
+      - data/processed/cleaned.csv
+
+  preprocess:
+    cmd: python src/data/preprocess.py
+    deps:
+      - src/data/preprocess.py
+      - data/processed/cleaned.csv
+      - configs/params.yaml
+    outs:
+      - data/processed/preprocessor.pkl
+      - data/splits/X_train.csv
+      - data/splits/X_test.csv
+      - data/splits/y_train.csv
+      - data/splits/y_test.csv
+
+  featurize:
+    cmd: python src/data/featurize.py
+    deps:
+      - src/data/featurize.py
+      - data/splits/X_train.csv
+      - data/splits/X_test.csv
+    outs:
+      - data/processed/features_done.txt
