@@ -2,6 +2,7 @@ data:
   raw_path: data/raw/yellow_tripdata_2015-01.csv
   processed_path: data/processed/cleaned.csv
   split_path: data/splits/
+  preprocessor_path: data/processed/preprocessor.pkl
 
 target: total_amount
 
@@ -23,3 +24,8 @@ features:
 
 selection:
   k_best: 8
+
+preprocess:
+  numeric_imputer_strategy: median
+  categorical_imputer_strategy: most_frequent
+  onehot_handle_unknown: ignore

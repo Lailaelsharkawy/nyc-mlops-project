@@ -12,51 +12,63 @@ from sklearn.feature_selection import SelectKBest, f_regression
 with open("configs/params.yaml") as f:
     config = yaml.safe_load(f)
 
-df = pd.read_csv(config["data"]["processed_path"])
+def build_numeric_pipeline(cfg):
+    return Pipeline([
+        ("imputer", SimpleImputer(strategy=cfg["preprocess"]["numeric_imputer_strategy"])),
+        ("scaler", StandardScaler()),
+    ])
 
-target = config["target"]
 
-X = df.drop(columns=[target])
-y = df[target]
+def build_categorical_pipeline(cfg):
+    return Pipeline([
+        ("imputer", SimpleImputer(strategy=cfg["preprocess"]["categorical_imputer_strategy"])),
+        ("encoder", OneHotEncoder(handle_unknown=cfg["preprocess"]["onehot_handle_unknown"])),
+    ])
 
-num_cols = config["features"]["numeric"]
-cat_cols = config["features"]["categorical"]
 
-numeric_pipe = Pipeline([
-    ("imputer", SimpleImputer(strategy="median")),
-    ("scaler", StandardScaler())
-])
+def build_preprocessing_pipeline(cfg):
+    num_cols = cfg["features"]["numeric"]
+    cat_cols = cfg["features"]["categorical"]
 
-categorical_pipe = Pipeline([
-    ("imputer", SimpleImputer(strategy="most_frequent")),
-    ("encoder", OneHotEncoder(handle_unknown="ignore"))
-])
+    preprocessor = ColumnTransformer([
+        ("num", build_numeric_pipeline(cfg), num_cols),
+        ("cat", build_categorical_pipeline(cfg), cat_cols),
+    ])
 
-preprocessor = ColumnTransformer([
-    ("num", numeric_pipe, num_cols),
-    ("cat", categorical_pipe, cat_cols)
-])
+    return Pipeline([
+        ("prep", preprocessor),
+        ("select", SelectKBest(score_func=f_regression, k=cfg["selection"]["k_best"])),
+    ])
 
-pipeline = Pipeline([
-    ("prep", preprocessor),
-    ("select", SelectKBest(score_func=f_regression, k=config["selection"]["k_best"]))
-])
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y,
-    test_size=config["split"]["test_size"],
-    random_state=config["split"]["random_state"]
-)
+def run():
+    df = pd.read_csv(config["data"]["processed_path"])
+    target = config["target"]
 
-X_train = pipeline.fit_transform(X_train, y_train)
-X_test = pipeline.transform(X_test)
+    X = df.drop(columns=[target])
+    y = df[target]
 
-joblib.dump(pipeline, "data/processed/preprocessor.pkl")
+    pipeline = build_preprocessing_pipeline(config)
 
-pd.DataFrame(X_train).to_csv("data/splits/X_train.csv", index=False)
-pd.DataFrame(X_test).to_csv("data/splits/X_test.csv", index=False)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=config["split"]["test_size"],
+        random_state=config["split"]["random_state"],
+    )
 
-y_train.to_csv("data/splits/y_train.csv", index=False)
-y_test.to_csv("data/splits/y_test.csv", index=False)
+    X_train = pipeline.fit_transform(X_train, y_train)
+    X_test = pipeline.transform(X_test)
 
-print("Preprocessing complete.")
+    split_path = config["data"]["split_path"]
+    joblib.dump(pipeline, config["data"]["preprocessor_path"])
+    pd.DataFrame(X_train).to_csv(f"{split_path}X_train.csv", index=False)
+    pd.DataFrame(X_test).to_csv(f"{split_path}X_test.csv", index=False)
+    y_train.to_csv(f"{split_path}y_train.csv", index=False)
+    y_test.to_csv(f"{split_path}y_test.csv", index=False)
+
+    print("Preprocessing complete.")
+
+
+if __name__ == "__main__":
+    run()

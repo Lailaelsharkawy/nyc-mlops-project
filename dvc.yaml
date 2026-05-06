@@ -1,6 +1,6 @@
 stages:
   prepare:
-    cmd: python src/data/prepare.py
+    cmd: py src/data/prepare.py
     deps:
       - src/data/prepare.py
       - data/raw/yellow_tripdata_2015-01.csv
@@ -9,7 +9,7 @@ stages:
       - data/processed/cleaned.csv
 
   preprocess:
-    cmd: python src/data/preprocess.py
+    cmd: py src/data/preprocess.py
     deps:
       - src/data/preprocess.py
       - data/processed/cleaned.csv
@@ -22,7 +22,7 @@ stages:
       - data/splits/y_test.csv
 
   featurize:
-    cmd: python src/data/featurize.py
+    cmd: py src/data/featurize.py
     deps:
       - src/data/featurize.py
       - data/splits/X_train.csv
