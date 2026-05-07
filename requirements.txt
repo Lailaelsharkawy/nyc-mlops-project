@@ -17,3 +17,6 @@ evidently
 prometheus-client
 
 pywin32==311 ; sys_platform == "win32"
+kagglehub
+dvc
+dvc-gdrive  # or whichever remote you use
