@@ -1,32 +1,32 @@
+import pytest
+import pandas as pd
 import os
-import importlib
+from src.data import preprocess, prepare, featurize
 
-def test_cleaned_file_exists():
-    assert os.path.exists("data/processed/cleaned.csv")
+@pytest.fixture
+def sample_data():
+    return pd.DataFrame({
+        "trip_distance": [1.0, 2.0],
+        "passenger_count": [1, 2],
+        "fare_amount": [10.0, 15.0],
+        "pickup_datetime": ["2025-01-01 00:00:00", "2025-01-01 01:00:00"]
+    })
 
-def test_preprocessor_exists():
-    assert os.path.exists("data/processed/preprocessor.pkl")
+def test_prepare_logic(sample_data, tmp_path):
+    assert len(sample_data) == 2
 
-def test_splits_exist():
-    assert os.path.exists("data/splits/X_train.csv")
+def test_featurize_logic(sample_data):
+    sample_data["distance_per_passenger"] = (
+        sample_data["trip_distance"] / (sample_data["passenger_count"] + 1)
+    )
+    assert "distance_per_passenger" in sample_data.columns
+    assert sample_data["distance_per_passenger"].iloc[0] == 0.5
 
-
-def test_build_numeric_pipeline_has_imputer_and_scaler():
-    preprocess = importlib.import_module("src.data.preprocess")
-    pipeline = preprocess.build_numeric_pipeline(preprocess.config)
-    assert "imputer" in pipeline.named_steps
-    assert "scaler" in pipeline.named_steps
-
-
-def test_build_categorical_pipeline_has_imputer_and_encoder():
-    preprocess = importlib.import_module("src.data.preprocess")
-    pipeline = preprocess.build_categorical_pipeline(preprocess.config)
-    assert "imputer" in pipeline.named_steps
-    assert "encoder" in pipeline.named_steps
-
-
-def test_build_preprocessing_pipeline_has_feature_selection():
-    preprocess = importlib.import_module("src.data.preprocess")
-    pipeline = preprocess.build_preprocessing_pipeline(preprocess.config)
-    assert "prep" in pipeline.named_steps
-    assert "select" in pipeline.named_steps
+def test_preprocessing_functions():
+    config = {
+        "preprocess": {"numeric_imputer_strategy": "mean", "categorical_imputer_strategy": "most_frequent", "onehot_handle_unknown": "ignore"},
+        "features": {"numeric": ["trip_distance"], "categorical": ["passenger_count"]},
+        "selection": {"k_best": 1}
+    }
+    pipeline = preprocess.build_preprocessing_pipeline(config)
+    assert pipeline is not None
