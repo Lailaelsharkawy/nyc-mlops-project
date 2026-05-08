@@ -1,6 +1,7 @@
 [run]
 omit =
     src/data/download_data.py
+    src/data/preprocess.py
 
 [report]
 exclude_lines =
