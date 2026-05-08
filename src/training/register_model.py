@@ -19,6 +19,12 @@ result = mlflow.register_model(model_uri, model_name)
 client.transition_model_version_stage(
     name=model_name,
     version=result.version,
+    stage="Staging"
+)
+
+client.transition_model_version_stage(
+    name=model_name,
+    version=result.version,
     stage="Production"
 )
 

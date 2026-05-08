@@ -23,15 +23,12 @@ logging.basicConfig(
 
 app = FastAPI(title="NYC Taxi Fare Predictor")
 
-class SimpleModel:
-    def predict(self, df):
-        # A simple calculation: $2.5 per mile + $4.00 base fare
-        return [df['trip_distance'].iloc[0] * 2.5 + 4.0]
+import mlflow.pyfunc
 
-model = SimpleModel()
-logging.info("API initialized successfully.")
-
-@app.get("/")
+model = mlflow.pyfunc.load_model(
+    "models:/NYC_Taxi_Model/Production"
+)
+@app.get("/health")
 def health():
     return {"status": "online"}
 

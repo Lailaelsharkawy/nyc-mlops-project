@@ -142,9 +142,8 @@ def run_monitoring():
 
     baseline_report.run(
         reference_data=reference_data,
-        current_data=drifted_data
+        current_data=reference_data
     )
-
     baseline_report.save_html(
         os.path.join(
             REPORT_DIR,
