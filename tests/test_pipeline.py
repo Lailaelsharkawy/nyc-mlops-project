@@ -72,7 +72,7 @@ def test_feature_column_created():
     )
 
 
-def test_preprocessing_pipeline():
+def test_preprocessing_fit_transform():
 
     config = {
         "preprocess": {
@@ -82,7 +82,7 @@ def test_preprocessing_pipeline():
         },
         "features": {
             "numeric": ["trip_distance"],
-            "categorical": ["passenger_count"]
+            "categorical": ["payment_type"]
         },
         "selection": {
             "k_best": 1
@@ -93,7 +93,16 @@ def test_preprocessing_pipeline():
         config
     )
 
-    assert pipeline is not None
+    df = pd.DataFrame({
+        "trip_distance": [1.0, 2.0],
+        "payment_type": [1, 2]
+    })
+
+    y = [10, 20]
+
+    transformed = pipeline.fit_transform(df, y)
+
+    assert transformed is not None
 
 
 def test_download_module_loaded():
