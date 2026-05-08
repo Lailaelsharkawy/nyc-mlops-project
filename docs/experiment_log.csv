@@ -1,0 +1,4 @@
+"Start Time","Duration","Run ID","Name","Source Type","Source Name","User","Status","max_depth","n_estimators","rmse"
+"2026-05-06 20:06:33","22.0s","fdc1241b81a1413ab307582b189233bd","RandomForest_HPO_Final","LOCAL","src/training/train.py","nado1","FINISHED","10","50","0.4263944991847936"
+"2026-05-06 19:58:53","2.5s","e0b31669be0c478798b4d40dd24c7bb9","RandomForest_HPO_Final","LOCAL","src/training/train.py","nado1","FAILED","","",""
+"2026-05-06 19:19:29","37.1min","aa820f46e8fa44e6897b9b9a84e34180","RandomForest_HPO_Parent","LOCAL","src/training/train.py","nado1","FAILED","","",""

@@ -36,3 +36,10 @@ mlflow:
 
 evaluate:
   rmse_threshold: 20.0
+
+serving:
+  host: 127.0.0.1
+  port: 8000
+
+monitoring:
+  drift_threshold: 0.2
