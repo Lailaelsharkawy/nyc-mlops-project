@@ -33,7 +33,7 @@ preprocess:
 mlflow:
   tracking_uri: "http://localhost:5000"
   experiment_name: "Taxi-Fare-Optimization"
-
+  tracking_uri: "https://your-ngrok-url.ngrok-free.app"
 evaluate:
   rmse_threshold: 20.0
 
