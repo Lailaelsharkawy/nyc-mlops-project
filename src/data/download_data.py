@@ -1,6 +1,7 @@
 import kagglehub
 import shutil
 import os
+import glob
 os.makedirs("data/raw", exist_ok=True)
 
 csv_files = glob.glob(os.path.join(path, "**", "yellow_tripdata_2015-01.csv"), recursive=True)
