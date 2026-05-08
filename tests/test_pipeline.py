@@ -38,6 +38,12 @@ def test_prepare_data(sample_dataframe):
         "data/processed/cleaned.csv"
     )
 
+    cleaned = pd.read_csv(
+        "data/processed/cleaned.csv"
+    )
+
+    assert len(cleaned) == 2
+
 
 def test_featurize_data():
 
@@ -59,6 +65,15 @@ def test_featurize_data():
         "data/processed/featured_train.csv"
     )
 
+    featured = pd.read_csv(
+        "data/processed/featured_train.csv"
+    )
+
+    assert (
+        "distance_per_passenger"
+        in featured.columns
+    )
+
 
 def test_feature_column_created():
 
@@ -72,7 +87,7 @@ def test_feature_column_created():
     )
 
 
-def test_preprocessing_fit_transform():
+def test_preprocessing_pipeline():
 
     config = {
         "preprocess": {
@@ -82,7 +97,7 @@ def test_preprocessing_fit_transform():
         },
         "features": {
             "numeric": ["trip_distance"],
-            "categorical": ["payment_type"]
+            "categorical": ["passenger_count"]
         },
         "selection": {
             "k_best": 1
@@ -93,16 +108,7 @@ def test_preprocessing_fit_transform():
         config
     )
 
-    df = pd.DataFrame({
-        "trip_distance": [1.0, 2.0],
-        "payment_type": [1, 2]
-    })
-
-    y = [10, 20]
-
-    transformed = pipeline.fit_transform(df, y)
-
-    assert transformed is not None
+    assert pipeline is not None
 
 
 def test_download_module_loaded():
@@ -136,6 +142,8 @@ def test_preprocessing_fit_transform():
         "payment_type": [1, 2]
     })
 
-    transformed = pipeline.fit_transform(df)
+    y = [10, 20]
+
+    transformed = pipeline.fit_transform(df, y)
 
     assert transformed is not None
