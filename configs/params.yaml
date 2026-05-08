@@ -32,7 +32,7 @@ preprocess:
 
 mlflow:
   tracking_uri: "http://localhost:5000"
-  experiment_name: "Taxi-Fare-Optimization"
+  experiment_name: "NYC_Taxi_Experiment"
 
 evaluate:
   rmse_threshold: 20.0
