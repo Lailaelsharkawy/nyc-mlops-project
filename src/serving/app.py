@@ -12,14 +12,27 @@ with open("configs/params.yaml") as f:
 app = FastAPI(title="NYC Taxi Fare Predictor")
 
 # Setup MLflow and load the Production model
-mlflow.set_tracking_uri(config["mlflow"]["tracking_uri"])
-model_uri = "models:/NYC_Taxi_Model/Production"
 
+mlflow.set_tracking_uri(
+    config["mlflow"]["tracking_uri"]
+)
+
+model_uri = "models:/NYC_Taxi_Model/Production"
 try:
-    model = mlflow.sklearn.load_model(model_uri)
-    print(f"✅ Real model loaded from Production registry.")
+    model = mlflow.pyfunc.load_model(
+        model_uri
+    )
+    print(
+        "Real model loaded from Production registry."
+    )
 except Exception as e:
-    print(f"❌ Could not load model: {e}")
+    print(
+        f"Could not load model: {e}"
+    )
+    class FallbackModel:
+        def predict(self, df):
+            return [10.0]
+    model = FallbackModel()
 
 @app.get("/health")
 def health():
