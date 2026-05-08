@@ -1,56 +1,45 @@
 import pandas as pd
 from fastapi import FastAPI, HTTPException
-import logging
+import mlflow.sklearn
+import yaml
 import os
 import uvicorn
-import os
-import logging
 
-current_file_path = os.path.dirname(os.path.abspath(__file__))
-log_dir = os.path.join(current_file_path, "..", "logs")
-
-if not os.path.exists(log_dir):
-    os.makedirs(log_dir)
-
-log_filepath = os.path.join(log_dir, 'deployment.log')
-
-logging.basicConfig(
-    filename=log_filepath,
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    force=True
-)
+# Load config
+with open("configs/params.yaml") as f:
+    config = yaml.safe_load(f)
 
 app = FastAPI(title="NYC Taxi Fare Predictor")
 
-class SimpleModel:
-    def predict(self, df):
-        # A simple calculation: $2.5 per mile + $4.00 base fare
-        return [df['trip_distance'].iloc[0] * 2.5 + 4.0]
+# Setup MLflow and load the Production model
+mlflow.set_tracking_uri(config["mlflow"]["tracking_uri"])
+model_uri = "models:/NYC_Taxi_Model/Production"
 
-model = SimpleModel()
-logging.info("API initialized successfully.")
+try:
+    model = mlflow.sklearn.load_model(model_uri)
+    print(f"✅ Real model loaded from Production registry.")
+except Exception as e:
+    print(f"❌ Could not load model: {e}")
 
-@app.get("/")
+@app.get("/health")
 def health():
-    return {"status": "online"}
+    return {"status": "online", "model": "NYC_Taxi_Model", "stage": "Production"}
 
 @app.post("/predict")
 async def predict(data: dict):
     try:
-        logging.info(f"Input Data Received: {data}")
-        
         df = pd.DataFrame([data])
         
-        prediction = model.predict(df)
+        input_data = df.values 
+        
+        prediction = model.predict(input_data)
         fare = round(float(prediction[0]), 2)
         
-        logging.info(f"Prediction successful: ${fare}")
         return {"fare_amount": fare}
         
     except Exception as e:
-        logging.error(f"Prediction error: {str(e)}")
-        raise HTTPException(status_code=400, detail="Invalid data format")
+        print(f"Prediction Error: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
