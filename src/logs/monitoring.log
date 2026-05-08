@@ -1,2 +1,8 @@
 2026-05-07 23:35:50,094 - INFO - No significant drift detected. Drift share = 0.0%
 2026-05-07 23:35:50,095 - INFO - Monitoring pipeline completed successfully.
+2026-05-08 11:37:07,145 - INFO - No significant drift detected. Drift share = 0.0%
+2026-05-08 11:37:07,150 - INFO - Monitoring pipeline completed successfully.
+2026-05-08 11:47:19,892 - INFO - No significant drift detected. Drift share = 0.0%
+2026-05-08 11:47:19,892 - INFO - Monitoring pipeline completed successfully.
+2026-05-08 12:42:49,319 - WARNING - WARNING: Drift detected on 37.5% of features!
+2026-05-08 13:18:02,281 - WARNING - WARNING: Drift detected on 37.5% of features!

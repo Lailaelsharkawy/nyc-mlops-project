@@ -17,10 +17,6 @@ from evidently.metric_preset import (
     DataQualityPreset
 )
 
-# =========================================================
-# 1. SETUP DIRECTORIES & LOGGING
-# =========================================================
-
 REPORT_DIR = "src/monitoring/evidently_reports/"
 LOG_DIR = "src/logs/"
 LOG_FILE = os.path.join(LOG_DIR, "monitoring.log")
@@ -33,10 +29,6 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
-
-# =========================================================
-# 2. PROMETHEUS METRICS
-# =========================================================
 
 MODEL_VERSION = Gauge(
     'current_model_version',
@@ -56,80 +48,68 @@ CONF_HIST = Histogram(
 
 DIST_HIST = Histogram(
     'feature_trip_distance_hist',
-    'Trip distance distribution'
+    'Feature distribution histogram'
 )
 
 PASS_HIST = Histogram(
     'feature_passenger_count_hist',
-    'Passenger count distribution'
+    'Feature distribution histogram'
+)
+DRIFT_SCORE = Gauge(
+    'drift_score',
+    'Detected drift percentage'
 )
 
-# =========================================================
-# 3. DRIFT SIMULATION
-# =========================================================
 
 def simulate_production_data(df):
-    """
-    Artificially inject drift into production data.
-    """
 
     drifted = df.copy()
 
-    # Feature drift 1
-    if 'trip_distance' in drifted.columns:
-        drifted['trip_distance'] = (
-            drifted['trip_distance'] * 2.5
-        )
+    numeric_cols = drifted.select_dtypes(
+        include=['number']
+    ).columns
 
-    # Feature drift 2
-    if 'passenger_count' in drifted.columns:
-        drifted['passenger_count'] = (
-            drifted['passenger_count'] + 3
-        )
+    if len(numeric_cols) >= 3:
 
-    # Feature drift 3
-    if 'fare_amount' in drifted.columns:
-        drifted['fare_amount'] = (
-            drifted['fare_amount'] * 1.2
-        )
+        drifted[numeric_cols[0]] *= 10
+        drifted[numeric_cols[1]] += 10
+        drifted[numeric_cols[2]] *= 2
 
     return drifted
 
-# =========================================================
-# 4. MONITORING PIPELINE
-# =========================================================
+def update_metrics():
+
+    MODEL_VERSION.set(1)
+
+    INF_COUNT.labels(
+        status='success'
+    ).inc(100)
+
+    for i in range(100):
+
+        DIST_HIST.observe(i)
+        PASS_HIST.observe(i * 2)
+        CONF_HIST.observe(0.8)
 
 def run_monitoring():
 
-    print("Loading datasets...")
-
-    # Reference dataset
     reference_data = pd.read_csv(
         "data/processed/featured_train.csv"
-    )
+    ).dropna()
 
-    # Current production dataset
     current_data = pd.read_csv(
-        "data/splits/X_test.csv"
+        "data/processed/featured_train.csv"
+    ).sample(1000).dropna()
+
+    drifted_data = simulate_production_data(
+        current_data
     )
-
-    # Drop NaNs
-    reference_data = reference_data.dropna()
-    current_data = current_data.dropna()
-
-    # Simulate drift
-    drifted_data = simulate_production_data(current_data)
-
-    # =====================================================
-    # BASELINE REPORT
-    # =====================================================
-
-    print("Generating baseline report...")
 
     baseline_report = Report(
         metrics=[
             DataDriftPreset(),
-            DataQualityPreset()        ]
+            DataQualityPreset()
+        ]
     )
 
     baseline_report.run(
@@ -137,20 +117,12 @@ def run_monitoring():
         current_data=current_data
     )
 
-    baseline_path = os.path.join(
-        REPORT_DIR,
-        "baseline_report.html"
+    baseline_report.save_html(
+        os.path.join(
+            REPORT_DIR,
+            "baseline_report.html"
+        )
     )
-
-    baseline_report.save(baseline_path)
-
-    print(f"Baseline report saved to: {baseline_path}")
-
-    # =====================================================
-    # DRIFT REPORT
-    # =====================================================
-
-    print("Generating drift report...")
 
     drift_report = Report(
         metrics=[
@@ -164,59 +136,45 @@ def run_monitoring():
         current_data=drifted_data
     )
 
-    drift_path = os.path.join(
-        REPORT_DIR,
-        "drift_report.html"
+    drift_report.save_html(
+        os.path.join(
+            REPORT_DIR,
+            "drift_report.html"
+        )
     )
-
-    drift_report.save(drift_path)
-
-    print(f"Drift report saved to: {drift_path}")
-
-    # =====================================================
-    # DRIFT ANALYSIS
-    # =====================================================
 
     results = drift_report.as_dict()
 
     drift_result = results['metrics'][0]['result']
 
-    number_of_drifted = drift_result['number_of_drifted_columns']
-    total_columns = drift_result['number_of_columns']
+    number_of_drifted = drift_result[
+        'number_of_drifted_columns'
+    ]
+
+    total_columns = drift_result[
+        'number_of_columns'
+    ]
 
     drift_share = (
         number_of_drifted / total_columns
     )
+    DRIFT_SCORE.set(drift_share)
 
     print(
         f"Drifted columns: "
         f"{number_of_drifted}/{total_columns}"
     )
 
-    # =====================================================
-    # DRIFT ALERT LOGIC
-    # =====================================================
-
     if drift_share > 0.20:
-
-        drifted_features = []
-
-        for col, stats in drift_result[
-            'drift_by_columns'
-        ].items():
-
-            if stats['drift_detected']:
-                drifted_features.append(col)
 
         warning_message = (
             f"WARNING: Drift detected on "
-            f"{drift_share:.1%} of features! "
-            f"Impacted features: {drifted_features}"
+            f"{drift_share:.1%} of features!"
         )
 
-        print(warning_message)
-
         logging.warning(warning_message)
+
+        print(warning_message)
 
     else:
 
@@ -225,80 +183,25 @@ def run_monitoring():
             f"Drift share = {drift_share:.1%}"
         )
 
-        print(success_message)
-
         logging.info(success_message)
 
-    # =====================================================
-    # UPDATE PROMETHEUS METRICS
-    # =====================================================
-
-    print("Updating Prometheus metrics...")
-
-    MODEL_VERSION.set(1.0)
-
-    INF_COUNT.labels(
-        status='success'
-    ).inc(len(drifted_data))
-
-    # Histogram metrics
-    if 'trip_distance' in drifted_data.columns:
-
-        for val in drifted_data[
-            'trip_distance'
-        ].head(100):
-
-            if pd.notnull(val):
-                DIST_HIST.observe(float(val))
-
-    if 'passenger_count' in drifted_data.columns:
-
-        for val in drifted_data[
-            'passenger_count'
-        ].head(100):
-
-            if pd.notnull(val):
-                PASS_HIST.observe(float(val))
-
-    # Dummy confidence values
-    np.random.seed(42)
-
-    confidence_scores = np.random.uniform(
-        0.5,
-        1.0,
-        size=100
-    )
-
-    for score in confidence_scores:
-        CONF_HIST.observe(float(score))
-
-    logging.info(
-        "Monitoring pipeline completed successfully."
-    )
-
-    print("\nMonitoring complete.")
-    print(f"Reports saved in: {REPORT_DIR}")
-    print(f"Logs saved in: {LOG_FILE}")
-
-# =========================================================
-# 5. MAIN
-# =========================================================
+        print(success_message)
 
 if __name__ == "__main__":
 
-    print(
-        "Starting Prometheus server on port 8000..."
-    )
+    print("Starting monitoring service...")
 
-    start_http_server(8000)
+    start_http_server(8002)
 
-    print(
-        "Prometheus metrics available at:"
-    )
+    print("Prometheus running on http://localhost:8002")
 
-    print("http://localhost:8000")
+    update_metrics()
+
+    print("Metrics updated")
 
     run_monitoring()
 
-    # Keep server alive briefly
-    time.sleep(10)
+    print("Evidently reports generated")
+
+    while True:
+        time.sleep(1)

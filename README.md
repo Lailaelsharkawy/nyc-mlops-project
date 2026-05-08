@@ -44,3 +44,19 @@ pytest
 * X_test.csv
 * y_train.csv
 * y_test.csv
+
+## Monitoring Stack
+
+- Evidently AI for drift monitoring
+- Prometheus for metrics collection
+- Grafana for dashboard visualization
+
+Run monitoring:
+
+python src/monitoring/run_monitoring.py
+
+Prometheus:
+http://localhost:9090
+
+Grafana:
+http://localhost:3000
