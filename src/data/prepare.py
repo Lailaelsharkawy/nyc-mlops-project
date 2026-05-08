@@ -42,5 +42,5 @@ def prepare_data():
     print("Prepared data saved.")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  
     prepare_data()
