@@ -5,27 +5,30 @@ import yaml
 import os
 import uvicorn
 
+# Load config
 with open("configs/params.yaml") as f:
     config = yaml.safe_load(f)
 
 app = FastAPI(title="NYC Taxi Fare Predictor")
 
+# Setup MLflow and load the Production model
 mlflow.set_tracking_uri(config["mlflow"]["tracking_uri"])
 model_uri = "models:/NYC_Taxi_Model/Production"
 
 try:
+    # Use pyfunc to ensure compatibility with different model flavors
     model = mlflow.pyfunc.load_model(model_uri)
-    print("Real model loaded from Production registry.")
+    print("✅ Real model loaded from Production registry.")
 except Exception as e:
-    print(f"Could not load model: {e}. Using fallback logic.")
+    print(f"⚠️ Could not load model: {e}. Using fallback logic.")
     class FallbackModel:
         def predict(self, df):
-            return [15.0] # Default fare for safety
+            return [15.0]
     model = FallbackModel()
 
 @app.get("/health")
 def health():
-    return {"status": "online", "model": "NYC_Taxi_Model", "stage": "Production"} [cite: 104]
+    return {"status": "online", "model": "NYC_Taxi_Model", "stage": "Production"}
 
 @app.post("/predict")
 async def predict(data: dict):
@@ -40,8 +43,9 @@ async def predict(data: dict):
         return {"fare_amount": fare}
         
     except Exception as e:
-        print(f"❌ Prediction Error: {e}")
-        raise HTTPException(status_code=400, detail=str(e)) [cite: 107]
+        print(f"Prediction Error: {e}")
+        # Return the specific error to the client for debugging
+        raise HTTPException(status_code=400, detail=str(e))
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
