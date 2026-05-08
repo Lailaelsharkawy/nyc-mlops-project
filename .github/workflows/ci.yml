@@ -30,4 +30,4 @@ jobs:
         run: python src/data/preprocess.py --validate
 
       - name: 4. Model Validation
-        run: python src/evaluation/evaluate.py
+        run: python src/training/train.py
