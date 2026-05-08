@@ -147,3 +147,63 @@ def test_preprocessing_fit_transform():
     transformed = pipeline.fit_transform(df, y)
 
     assert transformed is not None
+
+
+def test_download_import():
+
+    assert hasattr(
+        download_data,
+        "download_taxi_data"
+    )
+
+
+def test_preprocess_pipeline_execution():
+
+    config = {
+        "preprocess": {
+            "numeric_imputer_strategy": "mean",
+            "categorical_imputer_strategy": "most_frequent",
+            "onehot_handle_unknown": "ignore"
+        },
+        "features": {
+            "numeric": [
+                "trip_distance",
+                "fare_amount"
+            ],
+            "categorical": [
+                "payment_type"
+            ]
+        },
+        "selection": {
+            "k_best": 2
+        }
+    }
+
+    pipeline = preprocess.build_preprocessing_pipeline(
+        config
+    )
+
+    X = pd.DataFrame({
+        "trip_distance": [1.0, 2.0, 3.0],
+        "fare_amount": [10, 20, 30],
+        "payment_type": [1, 2, 1]
+    })
+
+    y = [15, 25, 35]
+
+    transformed = pipeline.fit_transform(
+        X,
+        y
+    )
+
+    assert transformed.shape[0] == 3
+
+
+def test_prepare_function_exists():
+
+    assert callable(prepare_data)
+
+
+def test_featurize_function_exists():
+
+    assert callable(featurize_data)
