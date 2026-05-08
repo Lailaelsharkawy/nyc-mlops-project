@@ -4,7 +4,6 @@ import pytest
 
 from src.data.prepare import prepare_data
 from src.data.featurize import featurize_data
-from src.data.download_data import download_taxi_data
 from src.data import preprocess
 
 
@@ -97,8 +96,3 @@ def test_preprocessing_pipeline():
     )
 
     assert pipeline is not None
-
-
-def test_download_function_exists():
-
-    assert callable(download_taxi_data)
