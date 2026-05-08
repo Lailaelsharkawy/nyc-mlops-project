@@ -1,0 +1,316 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "id": 1,
+      "title": "Drift Score Gauge",
+      "type": "gauge",
+      "targets": [
+        {
+          "expr": "drift_score",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": 2,
+      "title": "Model Version",
+      "type": "gauge",
+      "targets": [
+        {
+          "expr": "current_model_version",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      }
+    },
+    {
+      "id": 3,
+      "title": "Inference Requests",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "inference_count_by_status_total",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      }
+    },
+    {
+      "id": 4,
+      "title": "Inference Request Rate",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "rate(inference_count_by_status_total[1m])",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      }
+    },
+    {
+      "id": 5,
+      "title": "Prediction Confidence Heatmap",
+      "type": "heatmap",
+      "targets": [
+        {
+          "expr": "prediction_confidence_scores_bucket",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      }
+    },
+    {
+      "id": 6,
+      "title": "Trip Distance Histogram",
+      "type": "heatmap",
+      "targets": [
+        {
+          "expr": "feature_trip_distance_hist_bucket",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      }
+    },
+    {
+      "id": 7,
+      "title": "Passenger Count Histogram",
+      "type": "heatmap",
+      "targets": [
+        {
+          "expr": "feature_passenger_count_hist_bucket",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      }
+    },
+    {
+      "id": 8,
+      "title": "Average Trip Distance",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "feature_trip_distance_hist_sum / feature_trip_distance_hist_count",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 24
+      }
+    },
+    {
+      "id": 9,
+      "title": "Average Passenger Count",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "feature_passenger_count_hist_sum / feature_passenger_count_hist_count",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 6,
+        "y": 24
+      }
+    },
+    {
+      "id": 10,
+      "title": "Confidence Average",
+      "type": "gauge",
+      "targets": [
+        {
+          "expr": "prediction_confidence_scores_sum / prediction_confidence_scores_count",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 12,
+        "y": 24
+      }
+    },
+    {
+      "id": 11,
+      "title": "Monitoring Activity",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "python_gc_collections_total",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 18,
+        "y": 24
+      }
+    },
+    {
+      "id": 12,
+      "title": "CPU Style Monitoring",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "python_gc_objects_collected_total",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 30
+      }
+    },
+    {
+      "id": 13,
+      "title": "Inference Success Counter",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "inference_count_by_status_total{status=\"success\"}",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 30
+      }
+    },
+    {
+      "id": 14,
+      "title": "Drift Trend",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "drift_score",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 38
+      }
+    },
+    {
+      "id": 15,
+      "title": "Prediction Confidence Trend",
+      "type": "timeseries",
+      "targets": [
+        {
+          "expr": "prediction_confidence_scores_sum",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 38
+      }
+    },
+    {
+      "id": 16,
+      "title": "Monitoring Uptime",
+      "type": "stat",
+      "targets": [
+        {
+          "expr": "up",
+          "refId": "A"
+        }
+      ],
+      "gridPos": {
+        "h": 6,
+        "w": 24,
+        "x": 0,
+        "y": 46
+      }
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": [
+    "mlops",
+    "monitoring",
+    "grafana"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  },
+  "timezone": "browser",
+  "title": "NYC Taxi MLOps Monitoring",
+  "version": 1,
+  "weekStart": ""
+}

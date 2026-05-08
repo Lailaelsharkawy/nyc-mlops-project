@@ -69,6 +69,20 @@ def run():
 
     print("Preprocessing complete.")
 
+import sys
 
+def validate_data():
+    df = pd.read_csv(config["data"]["processed_path"])
+    required_cols = config["features"]["numeric"] + config["features"]["categorical"] + [config["target"]]
+    for col in required_cols:
+        assert col in df.columns, f"Missing mandatory column: {col}"
+    assert (df[config["target"]] >= 0).all(), "Data Quality Error: Negative fare detected."
+    print("✅ Data Validation Passed")
+
+if __name__ == "__main__":
+    if "--validate" in sys.argv:
+        validate_data()
+    else:
+        run()
 if __name__ == "__main__":
     run()

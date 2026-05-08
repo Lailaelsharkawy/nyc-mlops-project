@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 5s
+
+scrape_configs:
+  - job_name: 'mlops-monitoring'
+
+    static_configs:
+      - targets: ['localhost:8002']

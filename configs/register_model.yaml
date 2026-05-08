@@ -1,0 +1,4 @@
+model_registry:
+  model_name: "NYC_Taxi_Model"
+  model_stage: "Production"
+  ranking_metric: "metrics.rmse ASC"
