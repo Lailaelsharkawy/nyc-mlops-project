@@ -43,3 +43,7 @@
 2026-05-08 10:04:11,314 - INFO - Prediction successful: $34.0
 2026-05-08 10:04:14,851 - INFO - Input Data Received: {'passenger_count': 2, 'trip_distance': 12.0, 'pickup_hour': 3}
 2026-05-08 10:04:14,851 - INFO - Prediction successful: $34.0
+2026-05-08 10:53:55,349 - INFO - Input Data Received: {'passenger_count': 2, 'trip_distance': 12.0, 'pickup_hour': 3}
+2026-05-08 10:53:55,353 - INFO - Prediction successful: $34.0
+2026-05-08 10:58:07,619 - INFO - Input Data Received: {'passenger_count': 2, 'trip_distance': 6.0, 'pickup_hour': 17}
+2026-05-08 10:58:07,621 - INFO - Prediction successful: $19.0

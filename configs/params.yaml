@@ -3,7 +3,7 @@ data:
   processed_path: data/processed/cleaned.csv
   split_path: data/splits/
   preprocessor_path: data/processed/preprocessor.pkl
-
+  
 target: total_amount
 
 split:
@@ -29,3 +29,10 @@ preprocess:
   numeric_imputer_strategy: median
   categorical_imputer_strategy: most_frequent
   onehot_handle_unknown: ignore
+
+mlflow:
+  tracking_uri: "http://localhost:5000"
+  experiment_name: "Taxi-Fare-Optimization"
+
+evaluate:
+  rmse_threshold: 20.0
