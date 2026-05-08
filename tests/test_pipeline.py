@@ -1,32 +1,104 @@
-import pytest
-import pandas as pd
 import os
-from src.data import preprocess, prepare, featurize
+import pandas as pd
+import pytest
+
+from src.data.prepare import prepare_data
+from src.data.featurize import featurize_data
+from src.data.download_data import download_taxi_data
+from src.data import preprocess
+
 
 @pytest.fixture
-def sample_data():
+def sample_dataframe():
+
     return pd.DataFrame({
-        "trip_distance": [1.0, 2.0],
+        "VendorID": [1, 2],
         "passenger_count": [1, 2],
+        "trip_distance": [1.0, 2.0],
+        "payment_type": [1, 2],
         "fare_amount": [10.0, 15.0],
-        "pickup_datetime": ["2025-01-01 00:00:00", "2025-01-01 01:00:00"]
+        "tip_amount": [2.0, 3.0],
+        "tolls_amount": [0.0, 1.0],
+        "total_amount": [12.0, 19.0]
     })
 
-def test_prepare_logic(sample_data, tmp_path):
-    assert len(sample_data) == 2
 
-def test_featurize_logic(sample_data):
-    sample_data["distance_per_passenger"] = (
-        sample_data["trip_distance"] / (sample_data["passenger_count"] + 1)
+def test_prepare_data(sample_dataframe):
+
+    os.makedirs("data/raw", exist_ok=True)
+
+    sample_dataframe.to_csv(
+        "data/raw/yellow_tripdata_2015-01.csv",
+        index=False
     )
-    assert "distance_per_passenger" in sample_data.columns
-    assert sample_data["distance_per_passenger"].iloc[0] == 0.5
 
-def test_preprocessing_functions():
+    prepare_data()
+
+    assert os.path.exists(
+        "data/processed/cleaned.csv"
+    )
+
+    cleaned = pd.read_csv(
+        "data/processed/cleaned.csv"
+    )
+
+    assert len(cleaned) == 2
+
+
+def test_featurize_data():
+
+    os.makedirs("data/splits", exist_ok=True)
+
+    df = pd.DataFrame({
+        "trip_distance": [1.0, 2.0],
+        "passenger_count": [1, 2]
+    })
+
+    df.to_csv(
+        "data/splits/X_train.csv",
+        index=False
+    )
+
+    featurize_data()
+
+    assert os.path.exists(
+        "data/processed/featured_train.csv"
+    )
+
+    featured = pd.read_csv(
+        "data/processed/featured_train.csv"
+    )
+
+    assert (
+        "distance_per_passenger"
+        in featured.columns
+    )
+
+
+def test_preprocessing_pipeline():
+
     config = {
-        "preprocess": {"numeric_imputer_strategy": "mean", "categorical_imputer_strategy": "most_frequent", "onehot_handle_unknown": "ignore"},
-        "features": {"numeric": ["trip_distance"], "categorical": ["passenger_count"]},
-        "selection": {"k_best": 1}
+        "preprocess": {
+            "numeric_imputer_strategy": "mean",
+            "categorical_imputer_strategy": "most_frequent",
+            "onehot_handle_unknown": "ignore"
+        },
+        "features": {
+            "numeric": ["trip_distance"],
+            "categorical": ["passenger_count"]
+        },
+        "selection": {
+            "k_best": 1
+        }
     }
-    pipeline = preprocess.build_preprocessing_pipeline(config)
+
+    pipeline = preprocess.build_preprocessing_pipeline(
+        config
+    )
+
     assert pipeline is not None
+
+
+def test_download_function_exists():
+
+    assert callable(download_taxi_data)
