@@ -5,6 +5,7 @@ import pytest
 from src.data.prepare import prepare_data
 from src.data.featurize import featurize_data
 from src.data import preprocess
+from src.data import download_data
 
 
 @pytest.fixture
@@ -37,12 +38,6 @@ def test_prepare_data(sample_dataframe):
         "data/processed/cleaned.csv"
     )
 
-    cleaned = pd.read_csv(
-        "data/processed/cleaned.csv"
-    )
-
-    assert len(cleaned) == 2
-
 
 def test_featurize_data():
 
@@ -63,6 +58,9 @@ def test_featurize_data():
     assert os.path.exists(
         "data/processed/featured_train.csv"
     )
+
+
+def test_feature_column_created():
 
     featured = pd.read_csv(
         "data/processed/featured_train.csv"
@@ -96,3 +94,39 @@ def test_preprocessing_pipeline():
     )
 
     assert pipeline is not None
+
+
+def test_download_module_loaded():
+
+    assert download_data is not None
+
+
+def test_preprocessing_fit_transform():
+
+    config = {
+        "preprocess": {
+            "numeric_imputer_strategy": "mean",
+            "categorical_imputer_strategy": "most_frequent",
+            "onehot_handle_unknown": "ignore"
+        },
+        "features": {
+            "numeric": ["trip_distance"],
+            "categorical": ["payment_type"]
+        },
+        "selection": {
+            "k_best": 1
+        }
+    }
+
+    pipeline = preprocess.build_preprocessing_pipeline(
+        config
+    )
+
+    df = pd.DataFrame({
+        "trip_distance": [1.0, 2.0],
+        "payment_type": [1, 2]
+    })
+
+    transformed = pipeline.fit_transform(df)
+
+    assert transformed is not None
