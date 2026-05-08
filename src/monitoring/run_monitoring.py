@@ -97,14 +97,42 @@ def run_monitoring():
         "data/processed/featured_train.csv"
     ).dropna()
 
-    current_data = pd.read_csv(
-        "data/processed/featured_train.csv"
-    ).sample(1000).dropna()
+    reference_data = pd.read_csv(
+        "data/raw/yellow_tripdata_2015-01.csv"
+    ).sample(5000)
 
-    drifted_data = simulate_production_data(
-        current_data
+    drifted_data = pd.read_csv(
+        "data/raw/yellow_tripdata_2016-01.csv"
+    ).sample(5000)
+    
+    common_columns = list(
+        set(reference_data.columns).intersection(
+            set(drifted_data.columns)
+        )
     )
 
+    reference_data = reference_data[
+        common_columns
+    ]
+
+    drifted_data = drifted_data[
+        common_columns
+    ]
+
+    reference_data = reference_data.dropna()
+
+    drifted_data = drifted_data.dropna()
+    
+    numeric_cols = drifted_data.select_dtypes(
+        include=['number']
+    ).columns
+
+    for col in numeric_cols[:3]:
+
+        drifted_data[col] = (
+            drifted_data[col] * 1.8
+        )
+    
     baseline_report = Report(
         metrics=[
             DataDriftPreset(),
@@ -114,7 +142,7 @@ def run_monitoring():
 
     baseline_report.run(
         reference_data=reference_data,
-        current_data=current_data
+        current_data=drifted_data
     )
 
     baseline_report.save_html(

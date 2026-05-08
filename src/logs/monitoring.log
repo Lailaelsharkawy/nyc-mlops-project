@@ -6,3 +6,4 @@
 2026-05-08 11:47:19,892 - INFO - Monitoring pipeline completed successfully.
 2026-05-08 12:42:49,319 - WARNING - WARNING: Drift detected on 37.5% of features!
 2026-05-08 13:18:02,281 - WARNING - WARNING: Drift detected on 37.5% of features!
+2026-05-08 14:13:33,310 - WARNING - WARNING: Drift detected on 38.9% of features!
