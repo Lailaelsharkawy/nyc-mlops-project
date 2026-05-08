@@ -84,5 +84,3 @@ if __name__ == "__main__":
         validate_data()
     else:
         run()
-if __name__ == "__main__":
-    run()
